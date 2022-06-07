@@ -8,7 +8,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import uz.pdp.repository.StudentRepository;
-import uz.pdp.repository.StudentRepositoryImpl;
 
 @Configuration //bu class nimadr configlarni va qo'shimcha ichida bean ishlata oladi
 @ComponentScan("uz.pdp")
@@ -31,13 +30,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         dataSource.setDriverClassName("org.postgresql.Driver");
         dataSource.setUrl("jdbc:postgresql://localhost:5432/postgres");
         dataSource.setUsername("postgres");
-        dataSource.setPassword("root123");
+        dataSource.setPassword("123");
         return dataSource;
     }
 
     @Bean
     public StudentRepository getStudentDAO() {
-        return new StudentRepositoryImpl(getDataSource());
+        return new StudentRepository(getDataSource());
     }
 
 

@@ -1,14 +1,6 @@
 package uz.pdp.controller;
 
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import uz.pdp.entity.Student;
-import uz.pdp.repository.StudentRepository;
-
-import java.util.List;
 
 @Controller
 public class ReadController {

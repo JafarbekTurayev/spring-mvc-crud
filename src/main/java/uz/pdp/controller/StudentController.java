@@ -90,4 +90,8 @@ public class StudentController {
         return mv;
     }
 
+    @GetMapping("/test")
+    public String getTest() {
+        return "Salom Test";
+    }
 }

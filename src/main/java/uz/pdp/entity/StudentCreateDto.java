@@ -1,17 +1,18 @@
 package uz.pdp.entity;
 
+
 import lombok.*;
 import org.springframework.stereotype.Component;
 
-@NoArgsConstructor
+@Getter
 @AllArgsConstructor
-@Data
-@ToString
+@NoArgsConstructor
+@Setter
 @Builder
 @Component
-public class Student {
+public class StudentCreateDto {
     int id;
     String name;
     String email;
-    int  groups_id;
+    String  groups_name;
 }

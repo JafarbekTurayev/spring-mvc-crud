@@ -1,97 +1,101 @@
 package uz.pdp.controller;
 
-import org.springframework.aop.AfterReturningAdvice;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import uz.pdp.entity.Group;
 import uz.pdp.entity.Student;
+import uz.pdp.entity.StudentCreateDto;
+import uz.pdp.repository.GroupRepository;
 import uz.pdp.repository.StudentRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/student")
 public class StudentController {
 
-    @Autowired
-    StudentRepository studentRepository;
+     private final StudentRepository studentRepository;
 
-    @GetMapping("/all")
-    public ModelAndView getAll(ModelAndView mv) {
 
-        List<Student> studentList = studentRepository.read();
-        mv.addObject("listStudent", studentList);
-        mv.setViewName("read");
-        return mv;
+    @GetMapping("/read")
+    public ModelAndView readStudent(ModelAndView view){
+        List<StudentCreateDto> dtos = studentRepository.read();
+        view.addObject("dtoList",dtos);
+        view.setViewName("read");
+        return view;
+    }
+    @GetMapping(value = "/create")
+    public ModelAndView getStudent(ModelAndView view){
+        List<Group> groups = studentRepository.readNameGroup();
+        view.addObject("listGroup",groups);
+        view.setViewName("create");
+        return view;
     }
 
-    @GetMapping("/add")
-    public ModelAndView getAddPage(ModelAndView mv) {
-        mv.setViewName("create");
-        return mv;
-    }
 
-    @PostMapping("/add")
-    public ModelAndView saveStudent(@ModelAttribute("student") Student student, ModelAndView mv) {
+    @PostMapping(value = "/create")
+    public ModelAndView saveStudent( @ModelAttribute("student") StudentCreateDto dto, ModelAndView mv){
+        GroupRepository groupRepository = new GroupRepository();
+        Integer groupId = groupRepository.findByName(dto.getGroups_name());
+        Student student = Student.builder()
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .groups_id(groupId)
+                .build();
+        System.out.println(student);
+
         int num = studentRepository.create(student);
-
         if (num == 0) {
-            mv.addObject("ketmon", "Student qo'shishda xatolik");
+            mv.addObject("msg", "Error adding!!!");
         } else {
-            mv.addObject("ketmon", "Student added!");
+            mv.addObject("msg", "Student added👌");
         }
-
         mv.setViewName("create"); //create.jsp ni   web papkadam qidiradi
         return mv;
     }
-
-    @GetMapping("/update/{id}")
-    public ModelAndView getUpdatePage(@PathVariable Integer id, ModelAndView mv) {
-        Student studentById = studentRepository.findStudentById(id);
-        List<Student> studentList = new ArrayList<>(List.of(studentById));
-        mv.addObject("ketmon", studentList);
+    @GetMapping(value = "/update/{studentId}")
+    public ModelAndView getOneStudent(ModelAndView mv, @PathVariable ("studentId") int id ){
+        List<Student> studentList = studentRepository.findById(id);
+        List<Group> groupList = studentRepository.readNameGroup();
+        mv.addObject("listGroup",groupList);
+        mv.addObject("listStudent",studentList);
         mv.setViewName("update");
         return mv;
     }
-
-    //    @PutMapping("/update/{id}") aslida http request bo'lsa
-    @PostMapping("/update")
-    public ModelAndView updateStudent(@ModelAttribute Student student, ModelAndView mv) {
-
-        int counter = studentRepository.update(student);
-
-        if (counter > 0) {
-            mv.addObject("msg", "Student records updated against student id: " + student.getId());
+    @PostMapping(value = "/update")
+    public ModelAndView updateStudent(ModelAndView mv,@ModelAttribute("student") StudentCreateDto dto){
+        GroupRepository groupRepository = new GroupRepository();
+        Integer id = groupRepository.findByName(dto.getGroups_name());
+        Student student = Student.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .email(dto.getEmail())
+                .groups_id(id)
+                .build();
+        System.out.println(student);
+        int num = studentRepository.update(student);
+        if (num == 0) {
+            mv.addObject("msg", "Error updating!!!");
         } else {
-            mv.addObject("msg", "Error- check the console log.");
+            mv.addObject("msg", "Update successfully👍 ");
         }
-
-        mv.setViewName("update");
-
+        mv.setViewName("update"); //create.jsp ni   web papkadam qidiradi
         return mv;
     }
-
-    @GetMapping("/delete/{id}")
-    public ModelAndView deleteStudent(@PathVariable Integer id, ModelAndView mv) {
-
-        int counter = studentRepository.delete(id);
-
-        if (counter > 0) {
-            mv.addObject("msg", "Student records deleted against student id: " + id);
+    @GetMapping  ("/delete/{studentId}")
+    public ModelAndView deleteStudent(ModelAndView mv,@PathVariable("studentId") int id){
+        int num = studentRepository.delete(id);
+        if (num == 0) {
+            mv.addObject("msg", "Error deleting!!!");
         } else {
-            mv.addObject("msg", "Error- check the console log.");
+            mv.addObject("msg", "Delete successfully👌");
         }
-
-        mv.setViewName("delete");
-
+        mv.setViewName("delete"); //create.jsp ni   web papkadam qidiradi
         return mv;
-    }
 
-    @GetMapping("/test")
-    public String getTest() {
-        return "Salom Test";
     }
 }
